@@ -24,11 +24,29 @@ function checksExistsUserAccount(request, response, next) {
 }
 
 function checksCreateTodosUserAvailability(request, response, next) {
-  // Complete aqui
+  const { user } = request;
+
+  if ((!user.pro && user.todos.length < 10) || user.pro) {
+    return next();
+  } else {
+    return response.status(403).json({ error: "Exceeded in your plan!"});
+  }  
 }
 
 function checksTodoExists(request, response, next) {
-  // Complete aqui
+  const { username } = request.headers;
+  const { id } = request.params;
+
+  const user = users.find((user) => user.username === username);
+  const todo = user.todos.find((todo) => todo.id === id);
+
+  if (!todo) {
+    return response.status(404).json({ error: 'Todo not found!'});
+  } else if (user && validate(id)) {
+    request.user = user;
+    request.todo = todo;
+    return next();
+  } 
 }
 
 function findUserById(request, response, next) {
